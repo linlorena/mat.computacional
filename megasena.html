@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-image: url('logo-megasena.png');
+            background-size: cover;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        .container {
+            max-width: 600px;
+            padding: 20px;
+            background-color: #4CAF50; /* Cor de fundo verde */
+            border: 1px solid #4CAF50; /* Borda verde para combinar */
+            border-radius: 5px;
+            text-align: center;
+            color: #fff; /* Cor do texto branco para contrastar com o fundo verde */
+        }
+
+        /* Estilos para o emoji de trevo de 4 folhas */
+        .four-leaf-clover {
+            font-size: 40px;
+        }
+
+        /* Estilos para a mensagem de parabéns */
+        .congratulations {
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        .dezenas-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        .dezena {
+            margin: 5px;
+            padding: 10px 20px;
+            border: 1px solid #fff;
+            background-color: #4CAF50;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .dezena:hover {
+            background-color: #ff0; /* Cor de fundo amarela ao passar o cursor */
+            color: #000; /* Cor do texto preta ao passar o cursor */
+        }
+
+        .dezena.selected {
+            background-color: #ff0; /* Cor de fundo amarela */
+            color: #000; /* Cor do texto preta */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>SORTEIO DA MEGA-SENA</h2>
+        <form id="number-form">
+            <div class="dezenas-list">
+                <!-- Use um loop para gerar dezenas de 01 a 60 automaticamente em HTML/JavaScript -->
+                <script>
+                    for (let i = 1; i <= 60; i++) {
+                        let dezena = i.toString().padStart(2, '0'); // Garanta que as dezenas tenham dois dígitos
+                        let dezenaDiv = document.createElement('div');
+                        dezenaDiv.className = 'dezena';
+                        dezenaDiv.setAttribute('data-dezena', dezena);
+                        dezenaDiv.textContent = dezena;
+                        document.querySelector('.dezenas-list').appendChild(dezenaDiv);
+                    }
+                </script>
+            </div>
+            
+            <button type="button" id="sorteio-button">Sortear</button>
+        </form>
+        <p id="result"></p>
+        <div id="try-again" style="display: none;">
+            <p class="try-again">Você não ganhou! Tente novamente!</p>
+            <button id="new-attempt-button">Nova Tentativa</button>
+        </div>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const resultDiv = document.getElementById("result");
+            const dezenas = document.querySelectorAll(".dezena");
+            const sorteioButton = document.getElementById("sorteio-button");
+            const tryAgainDiv = document.getElementById("try-again");
+            const newAttemptButton = document.getElementById("new-attempt-button");
+
+            // Variável para manter o controle do número de dezenas escolhidas
+            let dezenasEscolhidas = 0;
+
+            dezenas.forEach(function (dezena) {
+                dezena.addEventListener("click", function () {
+                    // Verifique se a dezena está selecionada
+                    const isSelected = dezena.classList.contains("selected");
+
+                    if (!isSelected && dezenasEscolhidas < 6) {
+                        dezena.classList.add("selected");
+                        dezenasEscolhidas++;
+                    } else if (isSelected) {
+                        dezena.classList.remove("selected");
+                        dezenasEscolhidas--;
+                    }
+                });
+            });
+
+            sorteioButton.addEventListener("click", function () {
+                const selectedDezenas = document.querySelectorAll(".dezena.selected");
+                if (selectedDezenas.length === 6) {
+                    // Recolha os números fornecidos pelo usuário
+                    const userNumbers = [];
+                    selectedDezenas.forEach(function (selectedDezena) {
+                        userNumbers.push(parseInt(selectedDezena.getAttribute("data-dezena"), 10));
+                    });
+
+                    // Números corretos
+                    const correctNumbers = [4, 5, 10, 34, 58, 59];
+                    // Verifique se o usuário ganhou
+                    const isWinner = userNumbers.every(number => correctNumbers.includes(number));
+                    if (isWinner) {
+                        // Limpe a tela e exiba a mensagem de parabéns com emojis de trevo de 4 folhas
+                        resultDiv.innerHTML = `
+                            <p class="congratulations">PARABÉNS!!!! VOCÊ GANHOU A MEGA-SENA!</p>
+                            <p class="four-leaf-clover">🍀🍀🍀🍀</p>
+                        `;
+                        // Limpe as seleções de dezenas
+                        selectedDezenas.forEach(function (selectedDezena) {
+                            selectedDezena.classList.remove("selected");
+                        });
+                        // Redefina o número de dezenas escolhidas
+                        dezenasEscolhidas = 0;
+                    } else {
+                        // Exiba a mensagem para nova tentativa e o botão
+                        tryAgainDiv.style.display = "block";
+                    }
+                } else {
+                    resultDiv.innerHTML = "Escolha exatamente 6 dezenas válidas.";
+                }
+            });
+
+            newAttemptButton.addEventListener("click", function () {
+                // Limpe a mensagem e oculte a seção de nova tentativa
+                tryAgainDiv.style.display = "none";
+                // Limpe as seleções de dezenas
+                dezenas.forEach(function (dezena) {
+                    dezena.classList.remove("selected");
+                });
+                // Redefina o número de dezenas escolhidas
+                dezenasEscolhidas = 0;
+            });
+        });
+    </script>
+</body>
+</html>
